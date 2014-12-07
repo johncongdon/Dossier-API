@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Dossier" default="seed-speaker-db">
+    <taskdef name="seeduserdb" classname="tasks.SeedUserDatabase" />
+    <target name="seed-speaker-db" depends="migrations">
+        <input propertyname="numusers" promptChar=":" defaultvalue="50">Number of users</input>
+        <echo>Seeding database with ${numusers} users.</echo>
+        <seeduserdb numusers="${numusers}" />
+    </target>
+    <target name="migrations">
+        <exec command="bin/phinx migrate -e development"/>
+    </target>
+</project>

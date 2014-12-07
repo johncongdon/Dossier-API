@@ -1,0 +1,38 @@
+{
+    "name": "dossier/dossier",
+    "version": "0.0.1",
+    "description": "A centralized place to store, organize and analyze your speaker bios, conference talks and abstracts.",
+    "authors": [
+        {
+            "name": "Kayla Daniels",
+            "email": "kayladnls@gmail.com"
+        }, {
+            "name": "Matt Frost",
+            "email": "mfrost.design@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "guzzlehttp/guzzle": "~4.0",
+        "vlucas/phpdotenv": "~1.0",
+        "slim/slim": "2.*",	
+        "ircmaxell/password-compat": "1.0.*",
+        "vlucas/valitron": "~1.2",
+        "vlucas/spot2": "~2.1",
+        "nesbot/carbon": "1.13.0",
+        "robmorgan/phinx": "*"
+    }, 
+    "require-dev": {
+        "phpunit/phpunit": "4.2.*",
+        "phing/phing": "2.*",
+        "fzaninotto/faker": "1.5.*@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dossier\\": "src/"
+        }
+    },
+    "config": {
+        "bin-dir":"bin/"
+    }
+}
