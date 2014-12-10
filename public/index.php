@@ -4,7 +4,12 @@
  *
  */
 require '../vendor/autoload.php';
+require '../vendor/ircmaxell/password-compat/lib/password.php';
 
+use Dossier\Entities as Entities;
+use Dossier\Mapper as Mapper;
+use Dossier\Services as Services;
+use Dossier\Validator as Validate;
 use Spot\Config as DBConfig;
 use Valitron\Validator;
 use Dossier\Validator\Validatable;
@@ -18,18 +23,39 @@ $spot = new \Spot\Locator($cfg);
 $app = new \Slim\Slim();
 $app->spot = $spot;
 
+
 /**
  * Declaring the Options routes - since we're using CORS
  */
 $app->options('/register', function() use ($app) {
-	$app->response->setStatus(200);
+    $app->response->setStatus(200);
 });
 
 $app->post('/register', function() use ($app) {
-	$input = json_decode($app->request->getBody(), true);
-	
+    try {
+
+        $input = json_decode($app->request->getBody(), true);
+        
+        $validator = new Validator($input);
+        $mapper = $app->spot->mapper('Dossier\Entities\Speaker');
+        $speakerValidation = new Validate\SpeakerValidator($validator, $mapper->getExistingEmails());
+
+        if ($speakerValidation->creationContext()) {
+            $speakerRequest = new Services\SpeakerService($mapper);
+            $speakerRequest->create($input, $validator);
+            $app->response->setStatus(201);
+        } else {
+            $app->response->setStatus(400);
+            $app->response->setBody($speakerValidation->getErrors());
+        }
+
+    } catch (Exception $e) {
+    	echo $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
+        $app->response->setStatus(500);
+    }
 });
 
 $app->get('/', function() use ($app) {
 });
+
 $app->run();
