@@ -32,37 +32,56 @@ class SpeakerValidator
      *
      * @param Validator $validator
      */
-    public function __construct(Validator $validator, $existingEmails)
+    public function __construct(Validator $validator)
     {
         $this->validator = $validator;
-        $this->existingEmails = $existingEmails;
     }
 
     /**
      * Validation for the creation context of the Speaker Entity
      *
+     * @param array $existingEmails
      * @return bool
      */
-    public function creationContext()
+    public function creationContext($existingEmails)
     {
         $this->validator->rule('email', 'email');
-        $this->validator->rule('notIn', 'email', $this->existingEmails)->message('{field} is already registered')->label('Email');
+        $this->validator->rule('notIn', 'email', $existingEmails)->message('{field} is already registered')->label('Email');
         $this->validator->rule('equals', 'password', 'passwordConfirm');
         $this->validator->rule(
             'required',
-            array(
+            [
                 'firstName',
                 'lastName',
                 'email',
                 'password',
                 'passwordConfirm',
-            )
+            ]
         );
 
         $this->errors = $this->validator->errors();
         if (count($this->errors) > 0) {
             return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Validation for the retrieval context of the Speaker entity
+     *
+     * @return bool
+     */
+    public function retrievalByEmailContext()
+    {
+        $this->validator->rule('email', 'email');
+        $this->validator->rule('required', ['email']);
+
+        $this->errors = $this->validator->errors();
+        if (count($this->errors) > 0) {
+            return false;
+        }
+
         return true;
     }
 

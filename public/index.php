@@ -30,6 +30,9 @@ $app->spot = $spot;
 $app->options('/register', function() use ($app) {
     $app->response->setStatus(200);
 });
+$app->options('/login', function() use ($app) {
+    $app->response->setStatus(200);
+});
 
 $app->post('/register', function() use ($app) {
     try {
@@ -38,11 +41,11 @@ $app->post('/register', function() use ($app) {
         
         $validator = new Validator($input);
         $mapper = $app->spot->mapper('Dossier\Entities\Speaker');
-        $speakerValidation = new Validate\SpeakerValidator($validator, $mapper->getExistingEmails());
+        $speakerValidation = new Validate\SpeakerValidator($validator);
 
-        if ($speakerValidation->creationContext()) {
-            $speakerRequest = new Services\SpeakerService($mapper);
-            $speakerRequest->create($input, $validator);
+        if ($speakerValidation->creationContext($mapper->getExistingEmails())) {
+            $speakerService = new Services\SpeakerService($mapper);
+            $speakerService->create($input, $validator);
             $app->response->setStatus(201);
         } else {
             $app->response->setStatus(400);
@@ -51,6 +54,28 @@ $app->post('/register', function() use ($app) {
 
     } catch (Exception $e) {
     	echo $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
+        $app->response->setStatus(500);
+    }
+});
+
+$app->post('/login', function() use ($app) {
+    try {
+
+        $input = json_decode($app->request->getBody(), true);
+
+        $mapper = $app->spot->mapper('Dossier\Entities\Speaker');
+        $validator = new Validator($input);
+        $speakerValidation = new Validate\SpeakerValidator($validator);
+
+        if ($speakerValidation->retrievalByEmailContext()) {
+            $speakerService = new Services\SpeakerService($mapper);
+            $speaker = $speakerService->retrieveByEmail($input['email']);
+            print $speaker[0]->email;
+            $app->response->setStatus(400);
+        }
+
+    } catch (\Exception $e) {
+        echo $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
         $app->response->setStatus(500);
     }
 });
