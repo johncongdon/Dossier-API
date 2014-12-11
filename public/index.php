@@ -70,13 +70,20 @@ $app->post('/login', function() use ($app) {
         if ($speakerValidation->retrievalByEmailContext()) {
             $speakerService = new Services\SpeakerService($mapper);
             $speaker = $speakerService->retrieveByEmail($input['email']);
-            print $speaker[0]->email;
-            $app->response->setStatus(400);
+            $passwordService = new Services\PasswordService;
+
+            if ($passwordService->verify($input['password'], $speaker[0]->password)) {
+                $app->response->setStatus(200);
+            } else {
+                $app->response->setStatus(400);
+            }
         }
 
     } catch (\Exception $e) {
+
         echo $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
         $app->response->setStatus(500);
+
     }
 });
 
